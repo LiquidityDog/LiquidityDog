@@ -1,0 +1,4 @@
+.idea/*
+.hypotesis/*
+.pytest_cache/*
+tosee/*
