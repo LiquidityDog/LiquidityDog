@@ -7,6 +7,5 @@ interface Structures {
     struct Share {
         address holder;
         int256 amount;
-        uint256 rewardDate;
     }
 }

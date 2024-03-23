@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.0 (token/ERC20/ERC20.sol)
-// Sheqel token version 0.1
+// LiquidityDog token version 0.1
 
 pragma solidity ^0.8.0;
 
@@ -8,9 +8,8 @@ import "./IERC20.sol";
 import "./IERC20Metadata.sol";
 import "./Context.sol";
 import "../../interfaces/Uniswap.sol";
-import "./DistributorV2.sol";
 import "../Reserve/Reserve.sol";
-import "./LiquidityManager.sol";
+
 /**
  * @dev Implementation of the {IERC20} interface.
  *
@@ -37,8 +36,8 @@ import "./LiquidityManager.sol";
  * allowances. See {IERC20-approve}.
  */
 
-// Sheqel Token Contract0
-contract SheqelToken is Context, IERC20, IERC20Metadata {
+// LiquidityDog Token Contract0
+contract LiquidityDog is Context, IERC20, IERC20Metadata {
     address public admin;
     bool isFirstLiquidityProviding = true;
 
@@ -51,20 +50,9 @@ contract SheqelToken is Context, IERC20, IERC20Metadata {
     string private _name;
     string private _symbol;
 
-    IUniswapV2Router02 public uniswapV2Router;
-    address public uniswapV2Pair;
-    Distributor public distributor;
-    IUniswapV2Pair public uniswapV2PairContract;
-
     address public reserveAddress;
     Reserve public reserveContract;
-    LiquidityManager liquidityManager;
-    address public liquidityManagerAddress;
-    address public spookySwapAddress; //0xF491e7B69E4244ad4002BC14e878a34207E38c29; FTM
-    address public MDOAddress;
     address public teamAddress;
-
-    address public WFTM = 0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83;// 0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83; FTM
     IERC20 public USDC;
 
     /**
@@ -78,47 +66,17 @@ contract SheqelToken is Context, IERC20, IERC20Metadata {
      */
     constructor(address _reserveAddress, address _MDOAddress, uint256 _tSupply, address _spookyswapAddress, address _USDCAddress) {
         // Setting up the variables
-        _name = "Sheqel";
-        _symbol = "SHQ";
+        _name = "LiquidityDog";
+        _symbol = "LQDog";
         _totalSupply = _tSupply;
         _balances[_reserveAddress]= _totalSupply;
 
         reserveAddress = _reserveAddress;
         reserveContract = Reserve(reserveAddress);
-        spookySwapAddress = _spookyswapAddress;
-        MDOAddress = _MDOAddress;
         teamAddress = msg.sender;
 
-        USDC = IERC20(_USDCAddress); //IERC20(0x04068DA6C83AFCFA0e13ba15A6696662335D5B75); FTM
+        USDC = IERC20(_USDCAddress); //IERC20(0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174); FTM     
 
-
-        liquidityManager = new LiquidityManager(_USDCAddress, _spookyswapAddress, _reserveAddress);
-        liquidityManagerAddress = address(liquidityManager);
-
-
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(
-            spookySwapAddress
-        );
-        uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
-            .createPair(address(this), address(USDC));
-            
-
-        uniswapV2Router = _uniswapV2Router;
-
-        uniswapV2PairContract = IUniswapV2Pair(uniswapV2Pair);
-
-        //distributor = new HolderRewarderDistributor(spookySwapAddress, _reserveAddress);
-
-        _isExcludedFromFee[address(this)] = true;
-
-
-    }
-
-    function setDistributor(address _addr) external {
-        require(msg.sender == teamAddress, "Must be team address");
-        distributor = Distributor(_addr);
-        // Setup initial mint
-        //distributor.transferShare(_deployer, _amount);
     }
 
     /**
@@ -341,7 +299,7 @@ contract SheqelToken is Context, IERC20, IERC20Metadata {
                 _balances[sender] = senderBalance - amount;
         }
 
-        if(recipient != reserveAddress && sender != reserveAddress && !isFirstLiquidityProviding/*&& recipient != uniswapV2Pair && recipient != address(uniswapV2Router)*/){
+        if(recipient != reserveAddress && sender != reserveAddress && !isFirstLiquidityProviding/*){
 
             // Taking the tax and returning the amount left
             
@@ -374,64 +332,20 @@ contract SheqelToken is Context, IERC20, IERC20Metadata {
         returns (uint256 amountRecieved)
     {
         // Calculating the tax
-        uint256 reserve = (amount * 88797) / 10000000;
-        uint256 rewards = (amount * 255547) / 10000000;
-        uint256 MDO = (amount * 44373) / 10000000;
-        uint256 UBR = (amount * 88797) / 10000000;
-        uint256 liquidity = (amount * 22187) / 10000000;
-
-        // Adding the liquidity to the contract
-        _addToLiquidity(liquidity); 
+        uint256 reserve = (amount * 100000) / 10000000;
+      
 
         // Sending the tokens to the reserve
         _sendToReserve(reserve);
 
-        // Sending the MDO wallet
-        _sendToMDO(MDO);
 
-        // Adding to the Universal Basic Reward pool
-        _addToUBR(UBR);
-
-        // Adding to the rewards pool
-        _addToRewards(rewards);
-
-        return (amount - (reserve + rewards + MDO + UBR + liquidity));
+        return (amount - reserve);
     }
 
-    function _addToRewards(uint256 amount) private {
-        _balances[address(distributor)] = _balances[address(distributor)] + (amount);
-        //swapTokenToUSDC(address(distributor), amount);
-
-        distributor.addToCurrentShqToRewards(amount);
-    }
-
-    function _addToUBR(uint256 amount) private {
-        _balances[address(distributor)] = _balances[address(distributor)] + (amount);
-        //swapTokenToUSDC(address(distributor), amount);
-
-        distributor.addToCurrentShqToUBR(amount);
-    }
-
-    function _addToLiquidity(uint256 amount) private {
-        _balances[address(liquidityManager)] = _balances[address(liquidityManager)] + (amount);
-        //liquidityManager.addToCurrentShqToLiquidity(amount);
-    }
 
     function _sendToReserve(uint256 amount) private {
-        _balances[address(this)] = _balances[address(this)] + (amount);
-        swapTokenToUSDC(address(reserveAddress), amount);
-
-        //swapTokenToUSDC(reserveAddress, amount); // Sending the USDC to the reserve
-    }
-
-    function _sendToMDO(uint256 amount) private {
-        _balances[MDOAddress] = _balances[MDOAddress] + (amount);
-    }
-
-
-    function swapTokenToUSDC(address recipient, uint256 amount) internal {
-        _approve(address(this), address(reserveContract), amount);
-        reserveContract.sellShq(recipient, amount);
+        _balances[address(this)] = _balances[address(this)] - (amount);
+        _balances[address(reserveAddress)] = _balances[address(reserveAddress)] + (amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -548,12 +462,5 @@ contract SheqelToken is Context, IERC20, IERC20Metadata {
         uint256 amount
     ) internal virtual {}
 
-    function initiateLiquidityProviding() public {
-        liquidityManager.swapAndLiquify();
-    }
 
-
-    function getDistributor() public view returns(address){
-        return address(distributor);
-    }
 }
