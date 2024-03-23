@@ -16,7 +16,7 @@ contract Reserve {
 
 
 
-    constructor(address _spookyswapRouter, address _usdcAddress) {
+    constructor(address _usdcAddress) {
         // Contract constructed by the LiquidityDog
         USDC = IERC20(_usdcAddress);
         teamAddress = msg.sender;
@@ -57,7 +57,7 @@ contract Reserve {
     function sellPrice() public view returns (uint256) {
         uint256 totalLQDog = LiquidityDog.totalSupply();
         uint256 LQDogInReserve = LiquidityDog.balanceOf(address(this));
-        uint256 LQDogOutsideReserve = LiquidityDog.totalSupply() - LQDogInReserve;
+        uint256 LQDogOutsideReserve = totalLQDog - LQDogInReserve;
         uint256 usdcInReserve = USDC.balanceOf(address(this));
         uint256 LQDogDecimals = 10**18;
 

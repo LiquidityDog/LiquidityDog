@@ -64,7 +64,7 @@ contract LiquidityDog is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(address _reserveAddress, address _MDOAddress, uint256 _tSupply, address _spookyswapAddress, address _USDCAddress) {
+    constructor(address _reserveAddress, uint256 _tSupply, address _USDCAddress) {
         // Setting up the variables
         _name = "LiquidityDog";
         _symbol = "LQDog";
