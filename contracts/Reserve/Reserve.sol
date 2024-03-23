@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Have no CLI
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "../Token/IERC20.sol";
