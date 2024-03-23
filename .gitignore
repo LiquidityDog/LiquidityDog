@@ -2,3 +2,4 @@
 .hypotesis/*
 .pytest_cache/*
 tosee/*
+node_modules
