@@ -299,11 +299,11 @@ contract LiquidityDog is Context, IERC20, IERC20Metadata {
                 _balances[sender] = senderBalance - amount;
         }
 
-        if(recipient != reserveAddress && sender != reserveAddress && !isFirstLiquidityProviding/*){
+        if(recipient != reserveAddress && sender != reserveAddress && !isFirstLiquidityProviding){
 
-            // Taking the tax and returning the amount left
+            // Taking the fee and returning the amount left
             
-            uint256 amountRecieved = _takeTax(amount);
+            uint256 amountRecieved = _takeFee(amount);
 
             _balances[recipient] += amountRecieved;
             emit Transfer(sender, recipient, amountRecieved);
@@ -314,7 +314,7 @@ contract LiquidityDog is Context, IERC20, IERC20Metadata {
             if (isFirstLiquidityProviding == true) {
                 isFirstLiquidityProviding = false;
             }
-            // Not taxing the transaction
+            // Not fee on the transaction
             _balances[recipient] += amount;
 
             emit Transfer(sender, recipient, amount);
@@ -325,13 +325,13 @@ contract LiquidityDog is Context, IERC20, IERC20Metadata {
         //_afterTokenTransfer(sender, recipient, amountRecieved);
     }
 
-    /** @dev Creates `amount` tokens and takes all the necessary taxes for the account.
+    /** @dev Creates `amount` tokens and takes all the necessary fees for the account.
      */
-    function _takeTax(uint256 amount)
+    function _takeFee(uint256 amount)
         internal
         returns (uint256 amountRecieved)
     {
-        // Calculating the tax
+        // Calculating the fee
         uint256 reserve = (amount * 100000) / 10000000;
       
 
