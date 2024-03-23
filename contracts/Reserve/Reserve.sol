@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: Have no CLI
 pragma solidity ^0.8.0;
 
 import "../Token/IERC20.sol";
-import "../../interfaces/Ig.sol";
+import "../../interfaces/Uniswap.sol";
 
 
 contract Reserve {
-    ILiquidityDog private LiquidityDog;
+    IERC20 private LiquidityDog;
     IERC20 private USDC;
-    uint256 feeRate = 1;
     address private teamAddress;
     bool LQDogAddressSet=false;
 
@@ -35,7 +35,7 @@ contract Reserve {
 
     function setLiquidityDogAddress(address _addr) public onlyTeam() {
         require(LQDogAddressSet == false, "Can only change the address once");
-        LiquidityDog = ILiquidityDog(_addr);
+        LiquidityDog = IERC20(_addr);
         LQDogAddressSet=true;
 
         // Initial buying in of 0.000003USDC
@@ -57,7 +57,7 @@ contract Reserve {
     function sellPrice() public view returns (uint256) {
         uint256 totalLQDog = LiquidityDog.totalSupply();
         uint256 LQDogInReserve = LiquidityDog.balanceOf(address(this));
-        uint256 LQDogOutsideReserve = LiquidityDog.totalSupply() - LDDogInReserve;
+        uint256 LQDogOutsideReserve = LiquidityDog.totalSupply() - LQDogInReserve;
         uint256 usdcInReserve = USDC.balanceOf(address(this));
         uint256 LQDogDecimals = 10**18;
 
