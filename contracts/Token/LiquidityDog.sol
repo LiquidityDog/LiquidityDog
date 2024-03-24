@@ -299,7 +299,7 @@ contract LiquidityDog is Context, IERC20, IERC20Metadata {
                 _balances[sender] = senderBalance - amount;
         }
 
-        if(recipient != reserveAddress && sender != reserveAddress && !isFirstLiquidityProviding){
+        if(recipient != reserveAddress && !isFirstLiquidityProviding){
 
             // Taking the fee and returning the amount left
             

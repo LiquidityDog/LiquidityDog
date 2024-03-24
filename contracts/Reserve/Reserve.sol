@@ -68,7 +68,7 @@ contract Reserve {
         uint256 usdcInReserve = USDC.balanceOf(address(this));
         uint256 LQDogDecimals = 10**18;
 
-        return (totalLQDog * buyPriceVariableForSellPrice()  + ( usdcInReserve * LQDogDecimals )/100) / (LQDogInReserve - 1); // Price in USDC (6 decimals)
+        return (totalLQDog * buyPriceVariableForSellPrice()  + ( usdcInReserve * LQDogDecimals )/100 ) / (LQDogInReserve - 1); // Price in USDC (6 decimals)
     }
 
 
