@@ -38,7 +38,7 @@ contract Reserve {
         LiquidityDog = IERC20(_addr);
         LQDogAddressSet=true;
 
-        // Initial buying in of 0.000003USDC
+        // Initial buying in of 0.000002USDC
 
 
         // Burning 2
