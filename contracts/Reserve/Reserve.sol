@@ -41,8 +41,8 @@ contract Reserve {
         // Initial buying in of 0.000003USDC
 
 
-        // Burning 3
-        LiquidityDog.transfer(0x1234567890123456789012345678901234567890, 3*10**18);
+        // Burning 2
+        LiquidityDog.transfer(0x1234567890123456789012345678901234567890, 2*10**18);
         
     }
 
