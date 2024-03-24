@@ -57,11 +57,10 @@ contract Reserve {
     function sellPrice() public view returns (uint256) {
         uint256 totalLQDog = LiquidityDog.totalSupply();
         uint256 LQDogInReserve = LiquidityDog.balanceOf(address(this));
-        uint256 LQDogOutsideReserve = totalLQDog - LQDogInReserve;
         uint256 usdcInReserve = USDC.balanceOf(address(this));
         uint256 LQDogDecimals = 10**18;
 
-        return (usdcInReserve / LQDogInReserve * LQDogOutsideReserve + ( usdcInReserve * LQDogDecimals )/100) / (LQDogInReserve - 1); // Price in USDC (6 decimals)
+        return (totalLQDog * buyPrice() + ( usdcInReserve * LQDogDecimals )/100) / (LQDogInReserve - 1); // Price in USDC (6 decimals)
     }
 
 
